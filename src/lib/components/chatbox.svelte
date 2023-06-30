@@ -1,34 +1,8 @@
-<script lang="ts">
+<script>
     import { afterUpdate, onMount } from 'svelte';
     import { HumanChatMessage, AIChatMessage } from "langchain/schema";
-    import { dataset_dev } from 'svelte/internal';
-    let file;
-    
+
     let chatboxRef;
-    async function handleFileUpload(event)
-    {
-      {
-        file = event.target.files[0];
-        console.log(file);
-      }
-
-        try{return await fetch('/api/pinecone-uploading',
-            {
-                method: 'POST', headers: {'Content-Type': 'application/pdf'},
-                body: file
-            })
-            // API returns a json object with the response
-            .then(response => response.json())
-            .then(data => {
-              console.log(data.text)
-                return data
-
-            })
-        }
-        catch(err){
-            console.log(err)
-        } 
-    }
     async function getMessage(messages)
     {
         try{return await fetch('/api/openAIRoute',
@@ -46,7 +20,7 @@
             console.log(err)
         } 
     }
-    export let messages = [new AIChatMessage("Hello, I am Vline AI. I am here to help you with your questions.")];
+    export let messages = [new AIChatMessage("Hello, I am Solana AI. I have access to a vast majority of the github repos for solana, please ask me anything.")];
     
     afterUpdate(() => {
         scrollChatboxToBottom();
@@ -65,56 +39,6 @@
         console.log(messages)
     }
 </script>
-<style>
-    .message {
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      color: #6b2898;
-      /* Make it bold */
-      font-weight: bold;
-    }
-  
-    .message .content {
-        padding: 10px;
-        border-radius: 10px;
-        background-color: #f1f1f1;
-        border: 1px solid #ddd;
-        /* Set the max width to be the width of the chatbox minus the width of the author */
-        max-width: calc(100% - 120px);
-        font-size: 14px; 
-        text-align: left;
-    }
-  
-    .message .author {
-        margin: 10px;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        font-weight: bold;
-        border: 1px solid #753f98;
-        border-radius: 15px;
-        padding: 5px;
-        background-color: white;
-        justify-content: flex-end;
-
-    }
-
-    .message.user {
-      justify-content: flex-start;
-    }
-    .messageContainer{
-      overflow-y: auto;
-    }
-    .messageContainer::-webkit-scrollbar {
-      width: 10px;  /* Adjust width as needed */
-    }
-    .chatboxEnter{
-      color: black;
-    }
-  </style>
 <div class="bg-faint">
   <div class="chatbox" >
     <div class="messageContainer"bind:this={chatboxRef}>

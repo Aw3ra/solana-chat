@@ -17,7 +17,7 @@ await client.init({
 const pineconeIndex = client.Index(PINECONE_INDEX);
 const vectorStore = await PineconeStore.fromExistingIndex(
   new OpenAIEmbeddings({openAIApiKey: OPENAI_API_KEY}),
-  { pineconeIndex }
+  { pineconeIndex, namespace: "solana"}
 );
 
 async function searchVectors(query) {
@@ -43,9 +43,11 @@ export async function POST({request}) {
     }
   }
   const model = new ChatOpenAI({openAIApiKey: OPENAI_API_KEY, temperature: 1.1});
+//   Get the response from the vector store
+
   const chain = ConversationalRetrievalQAChain.fromLLM(
     model,
-    vectorStore.asRetriever()
+    vectorStore.asRetriever(),
   );
 
   // Use the most recent human message as a search query (the last message in the array)
