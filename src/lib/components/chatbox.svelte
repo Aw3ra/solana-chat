@@ -20,6 +20,16 @@
             console.log(err)
         } 
     }
+    function formatText(text) {
+        // Replace newlines with <br>
+        let formattedText = text.replace(/\n/g, '<br>');
+        
+        // Replace URLs with [Here] link
+        const urlPattern = /(http[s]?:\/\/[^\s]*)/g;
+        formattedText = formattedText.replace(urlPattern, '<a href="$1" target="_blank">[Here]</a>');
+
+        return formattedText;
+    }
     export let messages = [new AIChatMessage("Hello, I am Solana AI. I have access to a vast majority of the github repos for solana, please ask me anything.")];
     
     afterUpdate(() => {
@@ -43,13 +53,13 @@
   <div class="chatbox" >
     <div class="messageContainer"bind:this={chatboxRef}>
       {#each messages as message}
-        <div class="message" class:user={message instanceof HumanChatMessage}>
-          {#if message instanceof HumanChatMessage}
-            <span class="author">UI</span>
-            <span class="content">{message.text}</span>
+        <div class="message" class:user={message instanceof AIChatMessage}>
+          {#if message instanceof AIChatMessage}
+            <span class="author">AI</span>
+            <span class="content">{@html formatText(message.text)}</span>
           {:else}
             <span class="content">{message.text}</span>
-            <span class="author">AI</span>
+            <span class="author">UI</span>
           {/if}
         </div>
       {/each}

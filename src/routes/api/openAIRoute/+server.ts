@@ -1,11 +1,10 @@
 import { OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_ENVIRONMENT, PINECONE_INDEX } from "$env/static/private";
 import { ChatOpenAI } from "langchain/chat_models/openai";
-import { HumanChatMessage, AIChatMessage } from "langchain/schema";
+import { HumanChatMessage, AIChatMessage, SystemChatMessage } from "langchain/schema";
 import { ConversationalRetrievalQAChain, VectorDBQAChain } from "langchain/chains";
 import { PineconeClient } from "@pinecone-database/pinecone";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
-import { BufferMemory } from "langchain/memory";
 import { json } from "@sveltejs/kit";
 
 
@@ -25,7 +24,7 @@ async function searchVectors(query) {
     query,
   ); 
 
-  return results;
+  return results[0];
 }
 
 // This is the function to return a response to the user
@@ -53,8 +52,37 @@ export async function POST({request}) {
   // Use the most recent human message as a search query (the last message in the array)
   const query = conversation[conversation.length - 1].text;  
 
-  const message = await chain.call({question: query, chat_history: conversation});
+  const currentTime = new Date().getTime(); 
+  const results = await searchVectors(query);
+  // For each response log the content and the URL
+  console.log(results.pageContent);
+  console.log(results.metadata.url);
+
+  const systemPromptProfile = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. Condense the following information into a single sentence with very little words. Remove URLs:\n\n"
+  // Create a system message with the response with a breif description of the bot, along with the results
+  conversation.push(
+    new SystemChatMessage(
+      `${systemPromptProfile}\n\n${(results.pageContent)}`,
+    ),
+  );
+
+
+
+
+  const pineConeresponseTime = new Date().getTime() - currentTime;
+  const message = await model.call(
+    conversation
+  );
+
+  // Add the metadata URl to the end of the message
+  message.text += `\n\nLink: ${results.metadata.url}`;
+
+  const openAIresponseTime = new Date().getTime() - currentTime - pineConeresponseTime;
+  
+  console.log(`Pinecone time: ${pineConeresponseTime}ms`);
+  console.log(`OpenAI time: ${openAIresponseTime}ms`);
   return json(message.text);
+
 }
 
 
