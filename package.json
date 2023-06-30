@@ -17,8 +17,7 @@
         "format": "prettier --write '{public,src}/**/*.{css,html,js,svelte}'"
     },
     "devDependencies": {
-        "@sveltejs/adapter-auto": "^2.0.0",
-        "@sveltejs/adapter-vercel": "^2.0.2",
+        "@sveltejs/adapter-auto": "^2.1.0",
         "@tailwindcss/typography": "^0.5.8",
         "@tanstack/eslint-plugin-query": "^4.26.2",
         "@typescript-eslint/eslint-plugin": "^5.54.1",
