@@ -23,7 +23,7 @@ async function searchVectors(query) {
   const results = await vectorStore.similaritySearch(
     query,
   ); 
-
+    console.log(results);
   return results[0];
 }
 
@@ -54,12 +54,14 @@ export async function POST({request}) {
 
   const currentTime = new Date().getTime(); 
   const results = await searchVectors(query);
+  console.log(results)
   // For each response log the content and the URL
   console.log(results.pageContent);
   console.log(results.metadata.url);
 
-  const systemPromptProfile = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. Condense the following information into a single sentence with very little words. Remove URLs:\n\n"
-  // Create a system message with the response with a breif description of the bot, along with the results
+  const systemPromptProfile = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. Condense the following information into a single short, sentence. Remove URLs:\n\n"
+  // Create a system message with the response with a brief description of the bot, along with the results
+
   conversation.push(
     new SystemChatMessage(
       `${systemPromptProfile}\n\n${(results.pageContent)}`,
@@ -73,6 +75,7 @@ export async function POST({request}) {
   const message = await model.call(
     conversation
   );
+  console.log(message.text);
 
   // Add the metadata URl to the end of the message
   message.text += `\n\nLink: ${results.metadata.url}`;
