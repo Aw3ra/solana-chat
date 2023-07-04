@@ -23,7 +23,6 @@ async function searchVectors(query) {
   const results = await vectorStore.similaritySearch(
     query,
   ); 
-    console.log(results);
   return results[0];
 }
 
@@ -44,22 +43,15 @@ export async function POST({request}) {
   const model = new ChatOpenAI({openAIApiKey: OPENAI_API_KEY, temperature: 1.1});
 //   Get the response from the vector store
 
-  const chain = ConversationalRetrievalQAChain.fromLLM(
-    model,
-    vectorStore.asRetriever(),
-  );
-
   // Use the most recent human message as a search query (the last message in the array)
   const query = conversation[conversation.length - 1].text;  
 
   const currentTime = new Date().getTime(); 
   const results = await searchVectors(query);
-  console.log(results)
-  // For each response log the content and the URL
-  console.log(results.pageContent);
-  console.log(results.metadata.url);
 
-  const systemPromptProfile = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. Condense the following information into a single short, sentence. Remove URLs:\n\n"
+  // Convert results into a string
+
+  const systemPromptProfile = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. You have found the following description for a github repository, use only the following information to respond to the users query with a single sentence:\n\n`
   // Create a system message with the response with a brief description of the bot, along with the results
 
   conversation.push(
@@ -67,25 +59,23 @@ export async function POST({request}) {
       `${systemPromptProfile}\n\n${(results.pageContent)}`,
     ),
   );
-
-
-
-
+  console.log(conversation);
   const pineConeresponseTime = new Date().getTime() - currentTime;
   const message = await model.call(
     conversation
   );
-  console.log(message.text);
+
+  const finalMessage = message.text + "\n\n" + results.metadata.url;
+  console.log(finalMessage);
 
   // Add the metadata URl to the end of the message
-  message.text += `\n\nLink: ${results.metadata.url}`;
+
 
   const openAIresponseTime = new Date().getTime() - currentTime - pineConeresponseTime;
   
   console.log(`Pinecone time: ${pineConeresponseTime}ms`);
   console.log(`OpenAI time: ${openAIresponseTime}ms`);
-  return json(message.text);
-
+  return json(finalMessage);
 }
 
 

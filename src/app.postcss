@@ -3,6 +3,24 @@
 @tailwind components;
 @tailwind utilities;
 
+
+.search {
+    display: flex;
+    flex-direction: column;
+}
+
+.resultsBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    border-radius: 10px;
+    border: 1px solid #753f98;
+    height: 200px;
+}
+
+
 .message {
     margin-bottom: 10px;
     display: flex;
@@ -17,18 +35,25 @@
     padding: 10px;
     border-radius: 10px;
     /* Set the colour to be a faded white */
-    background-color: rgba(255, 255, 255, 0.7);
-    border: 1px solid #ddd;
+    background-color: rgba(0, 0, 0, 0.6);
+
     /* Set the max width to be the width of the chatbox minus the width of the author */
     max-width: calc(100% - 120px);
     font-size: 14px; 
     text-align: left;
 }
+.message .content.ai {
+    color: #9945FF;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: left;
+    background-color: rgba(255, 255, 255, 0.7);
+}
 
 .message .author {
     margin: 10px;
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     font-weight: bold;
@@ -37,7 +62,6 @@
     padding: 5px;
     background-color: white;
     justify-content: flex-start;
-
 }
 
 .message.user {

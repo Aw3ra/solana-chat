@@ -1,6 +1,10 @@
-<script>
+<script lang="ts">
     import { afterUpdate, onMount } from 'svelte';
     import { HumanChatMessage, AIChatMessage } from "langchain/schema";
+    import Robot from '$lib/assets/robot.png';
+    import User from '$lib/assets/user.png';
+
+    let results=[];
 
     let chatboxRef;
     async function getMessage(messages)
@@ -13,6 +17,7 @@
             // API returns a json object with the response
             .then(response => response.json())
             .then(data => {
+              console.log(data)
                 return data
             })
         }
@@ -26,11 +31,11 @@
         
         // Replace URLs with [Here] link
         const urlPattern = /(http[s]?:\/\/[^\s]*)/g;
-        formattedText = formattedText.replace(urlPattern, '<a href="$1" target="_blank">[Here]</a>');
+        formattedText = formattedText.replace(urlPattern, '<a href="$1" target="_blank">[Link]</a>');
 
         return formattedText;
     }
-    export let messages = [new AIChatMessage("Hello, I am Solana AI. I have access to a vast majority of the github repos for solana, please ask me anything.")];
+    export let messages = [new AIChatMessage("Hi! I am Solai. I have access to a wide variety of Solana Github Repositories, is there anything I can find for you?")];
     
     afterUpdate(() => {
         scrollChatboxToBottom();
@@ -44,22 +49,27 @@
     async function addMessage(message) {
         messages = [...messages, new HumanChatMessage(message)];
         // For each message in messages, add to the chatModel.call to continue conversartion
-        const response = new AIChatMessage(await getMessage(messages));
+        const returnedData = await getMessage(messages);
+        const response = new AIChatMessage(returnedData);
         messages = [...messages, response];
         console.log(messages)
     }
 </script>
-<div class="bg-faint">
+<div class="search">
   <div class="chatbox" >
     <div class="messageContainer"bind:this={chatboxRef}>
       {#each messages as message}
         <div class="message" class:user={message instanceof AIChatMessage}>
           {#if message instanceof AIChatMessage}
-            <span class="author">AI</span>
-            <span class="content">{@html formatText(message.text)}</span>
+            <span class="author">
+              <img alt="Solana AI" src={Robot} />
+            </span>
+            <span class="content ai">{@html formatText(message.text)}</span>
           {:else}
             <span class="content">{message.text}</span>
-            <span class="author">UI</span>
+            <span class="author">
+              <img alt="Solana AI" src={User} />
+            </span>
           {/if}
         </div>
       {/each}
@@ -76,5 +86,13 @@
         }}
       />
     </div>
+  </div>
+  <div class="resultsBox">
+    {#each results as result}
+      <div class = "results">
+        <a href={result.url} target="_blank">{result.name}</a>
+      </div>
+    {/each}
+    
   </div>
 </div>
