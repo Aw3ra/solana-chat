@@ -1,15 +1,27 @@
 <script lang="ts">
+    import { Document } from 'langchain/document';
     import { afterUpdate, onMount } from 'svelte';
     import { HumanChatMessage, AIChatMessage } from "langchain/schema";
     import Robot from '$lib/assets/robot.png';
     import User from '$lib/assets/user.png';
+    import { fade } from 'svelte/transition';
+    import { linear } from 'svelte/easing';
 
-    let results=[];
+    let displayedResults=[
+      new Document({
+        pageContent: "blahblahblah",
+        metadata: {
+          Projectname: "Solana",
+          url: "https://docs.solana.com/",
+          author: "The foundation"
+        }
+      })
+    ];
 
     let chatboxRef;
-    async function getMessage(messages)
+    async function getResults(messages)
     {
-        try{return await fetch('/api/openAIRoute',
+        try{return await fetch('/api/pineconeRoute',
             {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({"messages": messages})
@@ -17,13 +29,36 @@
             // API returns a json object with the response
             .then(response => response.json())
             .then(data => {
-              console.log(data)
                 return data
             })
         }
         catch(err){
             console.log(err)
         } 
+    }
+
+    async function getMessage (messages)
+    {
+      displayedResults = [];
+      const results = await getResults(messages);
+        try{
+          return await fetch('/api/openAIRoute',
+            {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({"messages": messages, "query": results[0]})
+            })
+            // API returns a json object with the response
+            .then(response => response.json())
+            .then(data => {
+              // DIsplayed results is an array of objects from results, excluding the first one
+              displayedResults = results.slice(1);
+              return data
+            })
+        }
+        catch(err){
+            console.log(err)
+        }
+      
     }
     function formatText(text) {
         // Replace newlines with <br>
@@ -34,6 +69,9 @@
         formattedText = formattedText.replace(urlPattern, '<a href="$1" target="_blank">[Link]</a>');
 
         return formattedText;
+    }
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
     }
     export let messages = [new AIChatMessage("Hi! I am Solai. I have access to a wide variety of Solana Github Repositories, is there anything I can find for you?")];
     
@@ -47,19 +85,22 @@
 
     //   Create chat model
     async function addMessage(message) {
-        messages = [...messages, new HumanChatMessage(message)];
+        messages = [...messages, new HumanChatMessage(message), new AIChatMessage("Let me see what I can find...")];
         // For each message in messages, add to the chatModel.call to continue conversartion
         const returnedData = await getMessage(messages);
         const response = new AIChatMessage(returnedData);
+        // Remove the last message from the chatModel
+        messages.pop();
+        // Have the message typed out in
         messages = [...messages, response];
-        console.log(messages)
     }
 </script>
 <div class="search">
   <div class="chatbox" >
     <div class="messageContainer"bind:this={chatboxRef}>
       {#each messages as message}
-        <div class="message" class:user={message instanceof AIChatMessage}>
+        <div class="message" 
+        class:user={message instanceof AIChatMessage}>
           {#if message instanceof AIChatMessage}
             <span class="author">
               <img alt="Solana AI" src={Robot} />
@@ -88,11 +129,22 @@
     </div>
   </div>
   <div class="resultsBox">
-    {#each results as result}
-      <div class = "results">
-        <a href={result.url} target="_blank">{result.name}</a>
+    <div class= "Heading text-black text-3xl">Similar results</div>
+    {#each displayedResults as result, index (result)}
+    <a
+      class="results text-black no-underline"
+      href={result.metadata.url}
+      target="_blank"
+      out:fade={{ duration: 1000, easing: linear }}
+      in:fade={{ delay: index * 400, duration: 1000, easing: linear }}
+      
+    >
+      <div class="ProjectName">
+        <strong>{capitalizeFirstLetter(result.metadata.Projectname)}</strong> by <strong>{capitalizeFirstLetter(result.metadata.author)}</strong>
       </div>
+    </a>
     {/each}
+  
     
   </div>
 </div>

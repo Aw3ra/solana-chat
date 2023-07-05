@@ -12,21 +12,25 @@ await client.init({
   environment: PINECONE_ENVIRONMENT,
 });
 const pineconeIndex = client.Index(PINECONE_INDEX);
+const vectorStore = await PineconeStore.fromExistingIndex(
+  new OpenAIEmbeddings({openAIApiKey: OPENAI_API_KEY}),
+  { pineconeIndex, namespace: "solana"}
+);
 
-const embeddings = new OpenAIEmbeddings({
-    openAIApiKey: OPENAI_API_KEY,
-});
-
-async function uploadVectors(docs) {
-    // Crerate embeddings for some text
-    await PineconeStore.fromDocuments(docs, embeddings, {pineconeIndex});
-}
+async function searchVectors(query) {
+    const results = await vectorStore.similaritySearch(
+      query,
+    ); 
+    return results;
+  }
 
 
 export async function POST({request}) {
-    const file = await request.body;
-    console.log(file);
+    const {messages}= await request.json();
+    const query = messages[messages.length - 1].data.content;
+    const results = await searchVectors(query);
+
+    return json(results);
     // uploadVectors(file);
-    return json("Uploaded");
 }
   
