@@ -6,6 +6,7 @@
     import User from '$lib/assets/user.png';
     import { fade } from 'svelte/transition';
     import { linear } from 'svelte/easing';
+    import Githubadd from './githubadd.svelte';
 
     let displayedResults=[
       new Document({
@@ -71,7 +72,14 @@
         return formattedText;
     }
     function capitalizeFirstLetter(string) {
+      try{
         return string.charAt(0).toUpperCase() + string.slice(1);
+      }
+      catch(err){
+        console.log(err)
+        console.log(string)
+      }
+        
     }
     export let messages = [new AIChatMessage("Hi! I am Solai. I have access to a wide variety of Solana Github Repositories, is there anything I can find for you?")];
     
@@ -129,7 +137,7 @@
     </div>
   </div>
   <div class="resultsBox">
-    <div class= "Heading text-black text-3xl">Similar results</div>
+    <div class= "Heading text-black text-3xl"><strong>Similar results</strong></div>
     {#each displayedResults as result, index (result)}
     <a
       class="results text-black no-underline"
@@ -145,6 +153,9 @@
     </a>
     {/each}
   
-    
+    <!-- Add submission box for github URLs to be submitted, needs to always be at the bottom -->
+    <div class = "githubadd">
+      <Githubadd />
+    </div>
   </div>
 </div>

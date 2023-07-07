@@ -1,10 +1,6 @@
-import { OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_ENVIRONMENT, PINECONE_INDEX } from "$env/static/private";
+import { OPENAI_API_KEY} from "$env/static/private";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { HumanChatMessage, AIChatMessage, SystemChatMessage } from "langchain/schema";
-import { ConversationalRetrievalQAChain, VectorDBQAChain } from "langchain/chains";
-import { PineconeClient } from "@pinecone-database/pinecone";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { json } from "@sveltejs/kit";
 // This is the function to return a response to the user
 // Adjust this for more accurate or more friednly responses
@@ -38,7 +34,6 @@ export async function POST({request}) {
     conversation
   );
   const finalMessage = message.text + "\n\n"+ capitalizeFirstLetter(query.metadata.Projectname) + " by: " + capitalizeFirstLetter(query.metadata.author)+ "\n" + query.metadata.url;
-  console.log(finalMessage);
   // Add the metadata URl to the end of the message
   return json(finalMessage);
 }

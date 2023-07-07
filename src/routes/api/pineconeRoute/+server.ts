@@ -28,10 +28,7 @@ async function searchVectors(query) {
 export async function POST({request}) {
     const {messages}= await request.json();
     const query = messages[messages.length - 2].data.content;
-    console.log(query);
     const results = await searchVectors(query);
-
     return json(results);
-    // uploadVectors(file);
 }
   
