@@ -16,7 +16,6 @@
                 // API returns a json object with the response
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data)
                     inputVal = data.status;
                 })
         }
@@ -26,7 +25,6 @@
         
         // Wait for 3 seconds
         await new Promise(r => setTimeout(r, 3000));
-        console.log(url)
         inputVal = '';
         buttonDisabled = false;
     }
