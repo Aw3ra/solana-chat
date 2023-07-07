@@ -72,14 +72,7 @@
         return formattedText;
     }
     function capitalizeFirstLetter(string) {
-      try{
         return string.charAt(0).toUpperCase() + string.slice(1);
-      }
-      catch(err){
-        console.log(err)
-        console.log(string)
-      }
-        
     }
     export let messages = [new AIChatMessage("Hi! I am Solai. I have access to a wide variety of Solana Github Repositories, is there anything I can find for you?")];
     
@@ -135,9 +128,13 @@
         }}
       />
     </div>
+    <!-- Tagling for who it was builty by -->
+    <div>
+      <p class="text-black text-sm">Built by 0xAwera for Solana</p>
+    </div>
   </div>
   <div class="resultsBox">
-    <div class= "Heading text-black text-3xl"><strong>Similar results</strong></div>
+    <div class= "Heading text-black text-3xl"><strong></strong>Similar results</div>
     {#each displayedResults as result, index (result)}
     <a
       class="results text-black no-underline"
