@@ -6,6 +6,7 @@
     import User from '$lib/assets/user.png';
     import { fade } from 'svelte/transition';
     import { linear } from 'svelte/easing';
+    import Githubadd from './githubadd.svelte';
 
     let displayedResults=[
       new Document({
@@ -17,8 +18,26 @@
         }
       })
     ];
-
+    let repoCount = 0;
     let chatboxRef;
+    async function getResultsCount()
+    {
+        try{return await fetch('/api/pineconeRoute',
+            {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({"count": true})
+            })
+            // API returns a json object with the response
+            .then(response => response.json())
+            .then(data => {
+              console.log(data)
+                repoCount = data;
+            })
+        }
+        catch(err){
+            console.log("Error getting results count: "+err)
+        }
+    }
     async function getResults(messages)
     {
         try{return await fetch('/api/pineconeRoute',
@@ -76,7 +95,12 @@
     export let messages = [new AIChatMessage("Hi! I am Solai. I have access to a wide variety of Solana Github Repositories, is there anything I can find for you?")];
     
     afterUpdate(() => {
+        // getResultsCount();
         scrollChatboxToBottom();
+    });
+    // On mount load the results count
+    onMount(() => {
+        getResultsCount();
     });
     function scrollChatboxToBottom() {
         chatboxRef.scrollTop = chatboxRef.scrollHeight;
@@ -95,6 +119,9 @@
         messages = [...messages, response];
     }
 </script>
+<h1 class="text-4xl font-bold text-left text-black">Solana AI Chat</h1>
+<h1 class="text-xl text-left text-black px-2">
+  Search from <strong>{repoCount}</strong> solana Repositories</h1>
 <div class="search">
   <div class="chatbox" >
     <div class="messageContainer"bind:this={chatboxRef}>
@@ -127,6 +154,10 @@
         }}
       />
     </div>
+    <!-- Tagling for who it was builty by -->
+    <div>
+      <p class="text-black text-sm">Built by 0xAwera for Solana</p>
+    </div>
   </div>
   <div class="resultsBox">
     <div class= "Heading text-black text-3xl">Similar results</div>
@@ -145,6 +176,9 @@
     </a>
     {/each}
   
-    
+    <!-- Add submission box for github URLs to be submitted, needs to always be at the bottom -->
+    <div class = "githubadd">
+      <Githubadd />
+    </div>
   </div>
 </div>

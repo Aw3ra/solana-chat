@@ -24,13 +24,21 @@ async function searchVectors(query) {
     return results;
   }
 
+async function getIndexCount() {
+    const pineconeIndex = client.Index(PINECONE_INDEX);
+    const indexInfo = await pineconeIndex.describeIndexStats({describeIndexStatsRequest: {}});
+    return indexInfo.totalVectorCount
+}
+
 
 export async function POST({request}) {
     const {messages}= await request.json();
-    const query = messages[messages.length - 1].data.content;
+    if (messages === undefined) {
+      const count = await getIndexCount();
+      return json(count);
+    }
+    const query = messages[messages.length - 2].data.content;
     const results = await searchVectors(query);
-
     return json(results);
-    // uploadVectors(file);
 }
   
