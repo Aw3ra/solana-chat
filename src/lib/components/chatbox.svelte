@@ -160,7 +160,7 @@
     </div>
   </div>
   <div class="resultsBox">
-    <div class= "Heading text-black text-3xl">Similar results</div>
+    <div class= "Heading text-black text-3xl"><strong></strong>Similar results</div>
     {#each displayedResults as result, index (result)}
     <a
       class="results text-black no-underline"
