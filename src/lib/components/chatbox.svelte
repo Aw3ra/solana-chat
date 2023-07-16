@@ -7,100 +7,26 @@
     import { fade } from 'svelte/transition';
     import { linear } from 'svelte/easing';
     import Githubadd from './githubadd.svelte';
+    import {getResultsCount, getMessage} from '$lib/utils/serverCalls';
+    import {formatText, capitalizeFirstLetter} from '$lib/utils/textFormatting';
 
-    let displayedResults=[
-      new Document({
-        pageContent: "blahblahblah",
-        metadata: {
-          Projectname: "Solana",
-          url: "https://docs.solana.com/",
-          author: "The foundation"
-        }
-      })
-    ];
+    export let namespace;
+    let heading = 'documents loaded from ' +capitalizeFirstLetter(namespace) + ' repo';
+    // If the namespace is not defined, set it to solana and set the heading to be "Solana repositories"
+    if (namespace === 'solana') {
+        heading = 'Solana repositories'
+    }
+    let displayedResults=[];
     let repoCount = 0;
     let chatboxRef;
-    async function getResultsCount()
-    {
-        try{return await fetch('/api/pineconeRoute',
-            {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({"count": true})
-            })
-            // API returns a json object with the response
-            .then(response => response.json())
-            .then(data => {
-              console.log(data)
-                repoCount = data;
-            })
-        }
-        catch(err){
-            console.log("Error getting results count: "+err)
-        }
-    }
-    async function getResults(messages)
-    {
-        try{return await fetch('/api/pineconeRoute',
-            {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({"messages": messages})
-            })
-            // API returns a json object with the response
-            .then(response => response.json())
-            .then(data => {
-                return data
-            })
-        }
-        catch(err){
-            console.log(err)
-        } 
-    }
-
-    async function getMessage (messages)
-    {
-      displayedResults = [];
-      const results = await getResults(messages);
-        try{
-          return await fetch('/api/openAIRoute',
-            {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({"messages": messages, "query": results[0]})
-            })
-            // API returns a json object with the response
-            .then(response => response.json())
-            .then(data => {
-              // DIsplayed results is an array of objects from results, excluding the first one
-              displayedResults = results.slice(1);
-              return data
-            })
-        }
-        catch(err){
-            console.log(err)
-        }
-      
-    }
-    function formatText(text) {
-        // Replace newlines with <br>
-        let formattedText = text.replace(/\n/g, '<br>');
-        
-        // Replace URLs with [Here] link
-        const urlPattern = /(http[s]?:\/\/[^\s]*)/g;
-        formattedText = formattedText.replace(urlPattern, '<a href="$1" target="_blank">[Link]</a>');
-
-        return formattedText;
-    }
-    function capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
     export let messages = [new AIChatMessage("Hi! I am Solai. I have access to a wide variety of Solana Github Repositories, is there anything I can find for you?")];
     
     afterUpdate(() => {
-        // getResultsCount();
         scrollChatboxToBottom();
     });
     // On mount load the results count
-    onMount(() => {
-        getResultsCount();
+    onMount(async() => {
+        repoCount = await getResultsCount(namespace);
     });
     function scrollChatboxToBottom() {
         chatboxRef.scrollTop = chatboxRef.scrollHeight;
@@ -109,10 +35,12 @@
 
     //   Create chat model
     async function addMessage(message) {
+        displayedResults = [];
         messages = [...messages, new HumanChatMessage(message), new AIChatMessage("Let me see what I can find...")];
         // For each message in messages, add to the chatModel.call to continue conversartion
-        const returnedData = await getMessage(messages);
-        const response = new AIChatMessage(returnedData);
+        const returnedData = await getMessage(messages, namespace);
+        displayedResults = returnedData[1];
+        const response = new AIChatMessage(returnedData[0]);
         // Remove the last message from the chatModel
         messages.pop();
         // Have the message typed out in
@@ -121,7 +49,7 @@
 </script>
 <h1 class="text-4xl font-bold text-left text-black">Solana AI Chat</h1>
 <h1 class="text-xl text-left text-black px-2">
-  Search from <strong>{repoCount}</strong> solana Repositories</h1>
+  Search from <strong>{repoCount}</strong> {heading}</h1>
 <div class="search">
   <div class="chatbox" >
     <div class="messageContainer"bind:this={chatboxRef}>
@@ -165,11 +93,11 @@
     <a
       class="results text-black no-underline"
       href={result.metadata.url}
-      target="_blank"
       out:fade={{ duration: 1000, easing: linear }}
       in:fade={{ delay: index * 400, duration: 1000, easing: linear }}
-      
+      target="_blank"
     >
+    <!-- href={"individualChat?project="+result.metadata.Projectname+"&author="+result.metadata.author} -->
       <div class="ProjectName">
         <strong>{capitalizeFirstLetter(result.metadata.Projectname)}</strong> by <strong>{capitalizeFirstLetter(result.metadata.author)}</strong>
       </div>

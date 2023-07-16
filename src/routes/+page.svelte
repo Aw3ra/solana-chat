@@ -1,10 +1,10 @@
 <script>
     import Chatbox from '../lib/components/chatbox.svelte';
+    let namespace = 'solana';
 </script>
 
 <div class="mx-auto max-w-4xl py-5">
     <!-- A heading for the chatbox -->
-    <Chatbox />
-    <!-- Tag line for who it was built by -->
+    <Chatbox namespace= {namespace}/>
     
 </div>

@@ -23,7 +23,7 @@ export async function POST({request}) {
   const model = new ChatOpenAI({openAIApiKey: OPENAI_API_KEY, temperature: 1.1});
 //   Get the response from the vector store
 
-  const systemPromptProfile = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. You have found the following description for a github repository, use only the following information to respond to the users query with a single sentence:\n\n`
+  const systemPromptProfile = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. You have found the following description for a solana github repository, use only the following information to respond to the users query with a single sentence:\n\n`
   // Create a system message with the response with a brief description of the bot, along with the results
   conversation.push(
     new SystemChatMessage(
