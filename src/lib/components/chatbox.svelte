@@ -11,15 +11,26 @@
     import {formatText, capitalizeFirstLetter} from '$lib/utils/textFormatting';
 
     export let namespace;
-    let heading = 'documents loaded from ' +capitalizeFirstLetter(namespace) + ' repo';
+    let heading = 'documents loaded from {DEFAULT} repo';
+    let firstMesage="";
     // If the namespace is not defined, set it to solana and set the heading to be "Solana repositories"
     if (namespace === 'solana') {
         heading = 'Solana repositories'
+        firstMesage = "Hi! I am Solai. I have access to a wide variety of Solana Github Repositories, is there anything I can find for you?"
     }
-    let displayedResults=[];
+    else{
+      firstMesage = "Hi! I am Solai. I currently have access to information about "+namespace+", is there anything I can help you with?"
+    }
+    let displayedResults=[{metadata:{
+      Projectname: "Solana",
+      url: "https://google.com",
+      author: "Solana",
+      count: 0
+    }}];
+    let chatResultsCount = []
     let repoCount = 0;
     let chatboxRef;
-    export let messages = [new AIChatMessage("Hi! I am Solai. I have access to a wide variety of Solana Github Repositories, is there anything I can find for you?")];
+    export let messages = [new AIChatMessage(firstMesage)];
     
     afterUpdate(() => {
         scrollChatboxToBottom();
@@ -32,6 +43,10 @@
         chatboxRef.scrollTop = chatboxRef.scrollHeight;
     }
 
+    async function getCount(namespace){
+        const count = await getResultsCount(namespace);
+        return count !== 0;
+    }
 
     //   Create chat model
     async function addMessage(message) {
@@ -45,11 +60,19 @@
         messages.pop();
         // Have the message typed out in
         messages = [...messages, response];
+        await addCount();
+    }
+
+    // Function to add the getCount as metadata to the displayed results, even if the metadata.count does not exist
+    async function addCount(){
+      for (let i = 0; i < displayedResults.length; i++) {
+        chatResultsCount[i] = await getCount(displayedResults[i].metadata.author+"/"+displayedResults[i].metadata.Projectname);
+      }
     }
 </script>
 <h1 class="text-4xl font-bold text-left text-black">Solana AI Chat</h1>
-<h1 class="text-xl text-left text-black px-2">
-  Search from <strong>{repoCount}</strong> {heading}</h1>
+  <h1 class="text-xl text-left text-black px-2">
+    Search from <strong>{repoCount}</strong> {@html heading.replace('{DEFAULT}', `<strong><u>${capitalizeFirstLetter(namespace)}</u></strong>`)}</h1>
 <div class="search">
   <div class="chatbox" >
     <div class="messageContainer"bind:this={chatboxRef}>
@@ -90,20 +113,37 @@
   <div class="resultsBox">
     <div class= "Heading text-black text-3xl"><strong></strong>Similar results</div>
     {#each displayedResults as result, index (result)}
-    <a
-      class="results text-black no-underline"
-      href={result.metadata.url}
-      out:fade={{ duration: 1000, easing: linear }}
-      in:fade={{ delay: index * 400, duration: 1000, easing: linear }}
-      target="_blank"
-    >
-    <!-- href={"individualChat?project="+result.metadata.Projectname+"&author="+result.metadata.author} -->
-      <div class="ProjectName">
-        <strong>{capitalizeFirstLetter(result.metadata.Projectname)}</strong> by <strong>{capitalizeFirstLetter(result.metadata.author)}</strong>
-      </div>
-    </a>
+    <!-- A div to hold 2 link buttons side by side in a grid -->
+    <div class ="grid grid-cols-4 gap-4">
+      <a
+        class="results text-black no-underline col-span-3"
+        href={result.metadata.url}
+        out:fade={{ duration: 1000, easing: linear }}
+        in:fade={{ delay: index * 400, duration: 1000, easing: linear }}
+        target="_blank"
+      >
+      <!--        -->
+        <div class="ProjectName">
+          <strong>{capitalizeFirstLetter(result.metadata.Projectname)}</strong> by <strong>{capitalizeFirstLetter(result.metadata.author)}</strong>
+        </div>
+      </a>
+      {#if chatResultsCount[index]}
+        <a
+        class="results text-black no-underline col-span-1/2"
+
+        href={"individualChat?project="+result.metadata.Projectname+"&author="+result.metadata.author}
+        out:fade={{ duration: 1000, easing: linear }}
+        in:fade={{ delay: index * 400, duration: 1000, easing: linear }}
+        target="_blank"
+        >
+        <div class="ProjectName text-red">
+          <strong>Chat</strong>
+        </div>
+      </a>
+      {/if}
+  </div> 
     {/each}
-  
+    
     <!-- Add submission box for github URLs to be submitted, needs to always be at the bottom -->
     <div class = "githubadd">
       <Githubadd />

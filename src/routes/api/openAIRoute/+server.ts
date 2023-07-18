@@ -7,10 +7,11 @@ import { json } from "@sveltejs/kit";
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
+let systemPromptProfile = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. You have found the following code as part of a github repository, using this information answer the users query in a short sentence:\n\n`
 
 
 export async function POST({request}) {
-  const { messages, query } = await request.json();
+  const { messages, query, namespace } = await request.json();
   let conversation = [];
   // For each message in the array, assign them to the right ChatMessage class
   for (const message of messages) {
@@ -23,11 +24,14 @@ export async function POST({request}) {
   const model = new ChatOpenAI({openAIApiKey: OPENAI_API_KEY, temperature: 1.1});
 //   Get the response from the vector store
 
-  const systemPromptProfile = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. You have found the following description for a solana github repository, use only the following information to respond to the users query with a single sentence:\n\n`
+  if (namespace==="solana"){
+      systemPromptProfile = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. You have found the following description for a solana github repository, use only the following information to respond to the users query with a single sentence:\n\n`
+  }
+
   // Create a system message with the response with a brief description of the bot, along with the results
   conversation.push(
     new SystemChatMessage(
-      `${systemPromptProfile}\n${(query.pageContent)}`,
+      `${systemPromptProfile}\n${(query.metadata.text)}`,
     ),
   );
   const message = await model.call(

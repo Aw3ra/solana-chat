@@ -3,7 +3,7 @@
   // Log the url of this page
   import { page } from '$app/stores'
 
-  let namespace = $page.url.searchParams.get('project')
+  let namespace = $page.url.searchParams.get('author') +'/'+ $page.url.searchParams.get('project')
 
 </script>
 
