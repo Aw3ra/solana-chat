@@ -1,6 +1,7 @@
 <script>
     let url = "";
     let inputVal = "";
+    export let namespace=''
     let buttonDisabled = false;
     async function addGithubURL(){
         buttonDisabled = true;
@@ -11,7 +12,10 @@
             await fetch('/api/githubRoute',
                 {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({url})
+                    body: JSON.stringify({
+                        "url": url, 
+                        "namespace": namespace
+                    })
                 })
                 // API returns a json object with the response
                 .then(response => response.json())

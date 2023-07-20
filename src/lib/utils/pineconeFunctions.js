@@ -30,7 +30,6 @@ export async function queryVectors (query, namespace, filter = {}){
             filter: filter,
         };
         const queryResponse = await index.query({queryRequest});
-        console.log(queryResponse.matches);
         return queryResponse;
     }
     catch(err){

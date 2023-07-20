@@ -4,10 +4,11 @@ import { addVectors } from "$lib/utils/pineconeFunctions.js";
 
 
 export async function POST({request}) {
-    let data = await request.json();
+    let {url} = await request.json();
     let results = [];
-    const vectors = await getCodeFromGithub(data.url);
-    const namespace = data.url.split("github.com/")[1];
+    const vectors = await getCodeFromGithub(url);
+    const namespace = url.split("github.com/")[1];
+    console.log(vectors)
     const vectorsAdded = await addVectors(vectors, namespace);
     console.log(vectorsAdded);
     let succesfulcount = 0;

@@ -25,7 +25,8 @@
       Projectname: "Solana",
       url: "https://google.com",
       author: "Solana",
-      count: 0
+      count: 0,
+      filename: "Solana",
     }}];
     let chatResultsCount = []
     let repoCount = 0;
@@ -146,7 +147,7 @@
     
     <!-- Add submission box for github URLs to be submitted, needs to always be at the bottom -->
     <div class = "githubadd">
-      <Githubadd />
+      <Githubadd namespace = {namespace} />
     </div>
   </div>
 </div>

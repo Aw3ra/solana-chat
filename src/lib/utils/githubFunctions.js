@@ -1,7 +1,7 @@
 import { Octokit } from "@octokit/core";
-import { OPENAI_API_KEY, GITHUB_TOKEN, PINECONE_ENVIRONMENT, PINECONE_INDEX, PINECONE_API_KEY} from "$env/static/private";
+import { GITHUB_TOKEN } from "$env/static/private";
 import { SupportedTextSplitterLanguages, RecursiveCharacterTextSplitter} from "langchain/text_splitter";
-import {createEmbedding} from "$lib/utils/aiFunctions";
+import {createEmbedding, createDescription} from "$lib/utils/aiFunctions";
 // Extension mapping based on your supportedLanguages array
 const languageToExtension = {
     'cpp': '.cpp',
@@ -31,12 +31,12 @@ const languageToExtension = {
     if (!SupportedTextSplitterLanguages.hasOwnProperty(language)) {
         // Skip this file if it's not a supported language
         return new RecursiveCharacterTextSplitter({
-            chunkSize: 1000,
+            chunkSize: 4000,
             chunkOverlap: 0,
         })
     }
     return RecursiveCharacterTextSplitter.fromLanguage(language, {
-        chunkSize: 1000,
+        chunkSize: 4000,
         chunkOverlap: 0,
     });
 }
@@ -56,6 +56,7 @@ async function processDirectory(octokit, owner, repo, path) {
         ...(path && { path })
     });
     const fileContents = [];
+    console.log(data);
     for(const item of data) {
         if (item.type === 'dir') {
             const subDirContent = await processDirectory(octokit, owner, repo, item.path);
@@ -64,29 +65,29 @@ async function processDirectory(octokit, owner, repo, path) {
             const extension = item.name.split('.').pop();
             if (Object.values(languageToExtension).includes(`.${extension}`)) {
                 const content = await fetch(item.download_url);
+                const contentText = await content.text();
                 fileContents.push({
                     name: item.name,
                     extension: `.${extension}`,
                     language: Object.keys(languageToExtension).find(key => languageToExtension[key] === `.${extension}`),
                     path: item.path,
-                    content: await content.text(),
+                    content: contentText,
+                    url: item.html_url,
                 });
             }
         }
     }
+    console.log(fileContents);
     return fileContents;
 }
 
 /**
- * @param {{ split: (arg0: string) => [any, any, any]; }} url
+ * @param {any} owner
+ * @param {any} repo
+ * @param {any} path
+ * @param {any} fileContents
  */
-export async function getCodeFromGithub(url) {
-    // If github.com/ is in the url, split it
-    const splitUrl = url.split('github.com/')[1];
-    const [owner, repo, path] = splitUrl.split('/');
-    const octokit = new Octokit({ auth: GITHUB_TOKEN });
-    const fileContents = await processDirectory(octokit, owner, repo, path);
-    // Turn the fileContents into a vector array for pinecone
+async function createVectors(owner, repo, path, fileContents){
     const vectorArray = [];
     for (const file of fileContents) {
         try{
@@ -99,9 +100,12 @@ export async function getCodeFromGithub(url) {
                     metadata: {
                         Projectname: repo,
                         author: owner,
-                        text: chunks[i].pageContent,
-                        url: url,
+                        code: chunks[i].pageContent,
+                        description: await createDescription(file.name, owner, repo, path, file.content),
+                        url: file.url,
                         language: file.language,
+                        filename: file.name,
+                        path: file.path,
                     },
                 });
             }
@@ -113,4 +117,18 @@ export async function getCodeFromGithub(url) {
         }
     }    
     return vectorArray;
+}
+
+/**
+ * @param {{ split: (arg0: string) => [any, any, any]; }} url
+ */
+export async function getCodeFromGithub(url) {
+    // If github.com/ is in the url, split it
+    const splitUrl = url.split('github.com/')[1];
+    const [owner, repo, path] = splitUrl.split('/');
+    const octokit = new Octokit({ auth: GITHUB_TOKEN });
+    const fileContents = await processDirectory(octokit, owner, repo, path);
+    // Turn the fileContents into a vector array for pinecone
+    return await createVectors(owner, repo, path, fileContents);
+    
 }
