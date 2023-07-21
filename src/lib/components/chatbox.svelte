@@ -7,6 +7,8 @@
     import { fade } from 'svelte/transition';
     import { linear } from 'svelte/easing';
     import Githubadd from './githubadd.svelte';
+    import SolanaResults from './results/solanaResults.svelte';
+    import RepoResults from './results/repoResults.svelte';
     import {getResultsCount, getMessage} from '$lib/utils/serverCalls';
     import {formatText, capitalizeFirstLetter} from '$lib/utils/textFormatting';
 
@@ -62,6 +64,7 @@
         // Have the message typed out in
         messages = [...messages, response];
         await addCount();
+        console.log(chatResultsCount);
     }
 
     // Function to add the getCount as metadata to the displayed results, even if the metadata.count does not exist
@@ -113,37 +116,11 @@
   </div>
   <div class="resultsBox">
     <div class= "Heading text-black text-3xl"><strong></strong>Similar results</div>
-    {#each displayedResults as result, index (result)}
-    <!-- A div to hold 2 link buttons side by side in a grid -->
-    <div class ="grid grid-cols-4 gap-4">
-      <a
-        class="results text-black no-underline col-span-3"
-        href={result.metadata.url}
-        out:fade={{ duration: 1000, easing: linear }}
-        in:fade={{ delay: index * 400, duration: 1000, easing: linear }}
-        target="_blank"
-      >
-      <!--        -->
-        <div class="ProjectName">
-          <strong>{capitalizeFirstLetter(result.metadata.Projectname)}</strong> by <strong>{capitalizeFirstLetter(result.metadata.author)}</strong>
-        </div>
-      </a>
-      {#if chatResultsCount[index]}
-        <a
-        class="results text-black no-underline col-span-1/2"
-
-        href={"individualChat?project="+result.metadata.Projectname+"&author="+result.metadata.author}
-        out:fade={{ duration: 1000, easing: linear }}
-        in:fade={{ delay: index * 400, duration: 1000, easing: linear }}
-        target="_blank"
-        >
-        <div class="ProjectName text-red">
-          <strong>Chat</strong>
-        </div>
-      </a>
-      {/if}
-  </div> 
-    {/each}
+    {#if namespace== "solana"}
+      <SolanaResults results = {displayedResults} resultsCount = {chatResultsCount}/>
+    {:else}
+      <RepoResults results = {displayedResults} resultsCount = {chatResultsCount}/>
+    {/if}
     
     <!-- Add submission box for github URLs to be submitted, needs to always be at the bottom -->
     <div class = "githubadd">

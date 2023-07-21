@@ -28,7 +28,7 @@ export async function createEmbedding(text){
 */
 export async function createDescription(name, author, repo, structure, content){
     try{
-        const model = new ChatOpenAI({openAIApiKey: OPENAI_API_KEY, modelName: "gpt-3.5-turbo-4k"});
+        const model = new ChatOpenAI({openAIApiKey: OPENAI_API_KEY, modelName: "gpt-3.5-turbo"});
         const systemMessage = new SystemChatMessage("You are an AI design to analyse code files and convert them into plain english. The user will give you a file name, repo structure, author, repo name and the file contents. You will then return a brief description of the file in plain english.");
         const humanMessage = new HumanChatMessage(
             `
@@ -45,6 +45,7 @@ export async function createDescription(name, author, repo, structure, content){
 
     }
     catch(err){
+        console.error()
         console.log("Error creating description: " + err)
         throw err;
     }

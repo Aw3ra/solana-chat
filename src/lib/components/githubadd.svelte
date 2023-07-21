@@ -1,36 +1,33 @@
 <script>
+    import { addFullGithubRepo, addReadmeGithubRepo } from "$lib/utils/serverCalls";
+
     let url = "";
     let inputVal = "";
     export let namespace=''
     let buttonDisabled = false;
     async function addGithubURL(){
         buttonDisabled = true;
+        url = inputVal;
+        inputVal = 'Uploading full repo...';
         // Hit the githubROute apit on the server
-        try{
-            url = inputVal;
-            inputVal = "Checking github...."
-            await fetch('/api/githubRoute',
-                {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        "url": url, 
-                        "namespace": namespace
-                    })
-                })
-                // API returns a json object with the response
-                .then(response => response.json())
-                .then(data => {
-                    inputVal = data.status;
-                })
-        }
-        catch(err){
-            console.log(err)
-        }
+        await addFullGithubRepo(url, namespace);
         
         // Wait for 3 seconds
         await new Promise(r => setTimeout(r, 3000));
         inputVal = '';
         buttonDisabled = false;
+    }
+    async function addReadMe(){
+        buttonDisabled = true;
+        url = inputVal;
+        inputVal = 'Uploading readme...';
+        // Hit the githubROute apit on the server
+        const response = await addReadmeGithubRepo(url, namespace);
+        inputVal = response;
+        await new Promise(r => setTimeout(r, 3000));
+        inputVal = '';
+        buttonDisabled = false;
+        // Do nothing for now
     }
 </script>
 
@@ -43,10 +40,29 @@
 />
 
 <!-- Submit button, add enabled true so we can turn it off while we wait -->
-<button 
-    class="githubaddSubmit"
-    on:click={addGithubURL}
-    disabled={buttonDisabled}>
-    Submit
-</button>
+<div class = "grid grid-cols-2 gap-5">
+    <div class = "span-cols-1">
+        <button 
+            class="githubaddSubmit"
+            on:click={addReadMe}
+            disabled={buttonDisabled}>
+            Readme
+        </button>
+    </div>
+    <div class = "span-cols-1">
+        <button 
+            class="githubaddSubmit"
+            on:click={addGithubURL}
+            disabled={buttonDisabled}>
+            Full repo
+        </button>
+    </div>
+
+
+
+
+</div>
+
+
+
 

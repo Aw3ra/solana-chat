@@ -73,14 +73,18 @@
 }
 .githubaddSubmit{
     background-color: white;
+    font-size: 12px;
+    padding: 4px;
     border-radius: 5px;
-    width: 30%;
+    width: 100%;
     position: center;
     background-color: rgba(255, 255, 255, 0.7);
-    transition: background-color 0.3s, transform 0.3s;
+    transition: background-color 0.3s, transform 0.3s, border-color 0.3s;
+    cursor: pointer;
 }
 .githubaddSubmit:hover{
     background-color: rgba(255, 255, 255, 0.9);
+    border-color: red;
     transform: translate(0px, -1px);
 }
 
@@ -158,16 +162,15 @@
 pre {
   padding: 10px;
   margin: 0.5em 0;
-  background: #f4f4f4;
+  background-color: rgba(255, 255, 255, 0.4);
   border-radius: 5px;
   border: 2px solid black;
   overflow: auto;
+  font-weight: normal;
 }
 
 code {
-  font-family: 'Courier New', Courier, monospace;
   color: black;
-  background-color: #f9f2f4;
   border-radius: 4px;
   padding: 2px 4px;
   font-size: 90%;

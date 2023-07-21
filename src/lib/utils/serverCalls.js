@@ -93,3 +93,57 @@ export async function getMessage (messages, namespace)
         console.log(err)
     }
 }
+
+
+/**
+ * @param {string} url
+ * @param {string} namespace
+    */
+export async function addFullGithubRepo(url, namespace)
+{
+    try{
+        await fetch('/api/githubRoute',
+            {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    "url": url, 
+                    "namespace": namespace,
+                    "upload": "full"
+                })
+            })
+            // API returns a json object with the response
+            .then(response => response.json())
+            .then(data => {
+                // Reutrn the status of the request as a string
+                return data.status
+            })
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+/**
+ * @param {string} url
+ * @param {string} namespace
+    */
+ export async function addReadmeGithubRepo(url, namespace) {
+    try {
+        // return fetch result directly
+        return await fetch('/api/githubRoute', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                "url": url,
+                "namespace": namespace,
+                "upload": "readme"
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Return the data directly
+            return data.status;
+        })
+    }
+    catch(err) {
+        console.log(err)
+    }
+}

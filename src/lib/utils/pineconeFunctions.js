@@ -97,6 +97,8 @@ export async function getNamespaceCount(namespace)
  * @param {string} namespace
  */
 export async function addVectors (vectors, namespace){
+    // Put the namespace in lowercase
+    namespace = namespace.toLowerCase();
     // Check the array to make sure the objects have the correct structure
     vectors.forEach(vector => {
         if (vector.id === undefined || vector.values === undefined || vector.metadata === undefined){

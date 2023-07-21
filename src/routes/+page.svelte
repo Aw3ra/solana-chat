@@ -1,8 +1,6 @@
 <script>
     import Chatbox from '../lib/components/chatbox.svelte';
-    import {checkPinecone} from '../lib/utils/serverCalls';
     let namespace = 'solana';
-    let query = "testing"
 
 </script>
 

@@ -7,7 +7,7 @@ import { json } from "@sveltejs/kit";
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
-let systemPromptProfile = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. You have found the following code as part of a github repository, using this information answer the users query in a short sentence:\n\n`
+let systemPromptProfile = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. You have found the following code as part of a github repository, using this information answer the users query in a short sentence or two:\n\n`
 
 
 export async function POST({request}) {
@@ -16,8 +16,8 @@ export async function POST({request}) {
   // For each message in the array, assign them to the right ChatMessage class
   const model = new ChatOpenAI({
     openAIApiKey: OPENAI_API_KEY, 
-    temperature: 1.1, 
-    modelName: "gpt-4",
+    temperature: 1.1,
+    modelName: "gpt-3.5-turbo",
 });
 //   Get the response from the vector store
 let systemPrompt = new SystemChatMessage("");
