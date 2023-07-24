@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { getNamespaceCount, queryVectors } from "$lib/utils/pineconeFunctions";
+import { getNamespaceCount, queryVectors, deleteNamespace } from "$lib/utils/pineconeFunctions";
 
 
 
@@ -14,6 +14,9 @@ export async function POST({request}) {
         }
         else if (action === "check") {
           return json("Not implemented");
+        }
+        else if (action === "delete") {
+          return json(await deleteNamespace(namespace));
         }
         else{
           console.log(action, query, messages, namespace);

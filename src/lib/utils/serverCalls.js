@@ -38,7 +38,6 @@ export async function getResultsCount(namespace)
     return response.json();
 }
 
-
 /**
  * @param {any} messages
  * @param {any} namespace
@@ -94,7 +93,6 @@ export async function getMessage (messages, namespace)
     }
 }
 
-
 /**
  * @param {string} url
  * @param {string} namespace
@@ -102,7 +100,7 @@ export async function getMessage (messages, namespace)
 export async function addFullGithubRepo(url, namespace)
 {
     try{
-        await fetch('/api/githubRoute',
+        return await fetch('/api/githubRoute',
             {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -144,6 +142,31 @@ export async function addFullGithubRepo(url, namespace)
         })
     }
     catch(err) {
+        console.log(err)
+    }
+}
+
+/**
+ * @param {string} namespace
+ */
+export async function deleteNamespace(namespace)
+{
+    try{
+        return await fetch('/api/pineconeRoute',
+            {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    "action": "delete",
+                    "namespace": namespace})
+            })
+            // API returns a json object with the response
+            .then(response => response.json())
+            .then(data => {
+                // Reutrn the status of the request as a string
+                return data.status
+            })
+    }
+    catch(err){
         console.log(err)
     }
 }

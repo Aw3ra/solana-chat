@@ -30,6 +30,7 @@ export async function queryVectors (query, namespace, filter = {}){
             filter: filter,
         };
         const queryResponse = await index.query({queryRequest});
+        console.log(queryResponse.matches);
         return queryResponse;
     }
     catch(err){
@@ -105,16 +106,34 @@ export async function addVectors (vectors, namespace){
             throw new Error("Incorrect vector structure");
         }
     });
+    console.log(vectors.length)
     try{
         const upsertRequest = {
             vectors: vectors,
             namespace: namespace,
         };
         const addResponse = await index.upsert({upsertRequest});
+        console.log(addResponse);
         return addResponse;
     }
     catch(err){
         console.log("Error adding vectors: "+ err)
+        throw err;
+    }
+}
+
+/**
+ * Function to delete a namespace from the index
+ * @param {string} namespace
+ */
+export async function deleteNamespace (namespace){
+    try{
+        const deleteResponse = await index.delete1({deleteAll:true , namespace: namespace});
+        console.log(deleteResponse);
+        return deleteResponse;
+    }
+    catch(err){
+        console.log("Error deleting namespace: "+ err)
         throw err;
     }
 }

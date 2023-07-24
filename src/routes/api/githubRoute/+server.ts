@@ -10,17 +10,27 @@ export async function POST({request}) {
     }
     if (upload === "full")
     {
-        const vectors = await getCodeFromGithub(url);
-        const namespace = url.split("github.com/")[1];
-        console.log(vectors)
-        const vectorsAdded = await addVectors(vectors, namespace);
+        return json({status: "Not yet implemented."});
+        const vectorsAdded = 
+            await addVectors(
+                await getCodeFromGithub(url), 
+                url.split("github.com/")[1]
+                );
         let succesfulcount = vectorsAdded;
-        return json({status: "Uploaded: "+ succesfulcount + " vectors to the database."});
+        return json({status: "Uploaded: "+ succesfulcount + " vectors."});
     }
     else if (upload === "readme")
     {
-        console.log("Readme upload not yet implemented.")
-        return json({status: "Readme upload not yet implemented."});
+        {
+            // return json({status: "README not yet implemented."});
+            const readme=true
+            const vectorsAdded = 
+                await addVectors(
+                    await getCodeFromGithub(url, readme), 
+                    "solana"
+                    );
+            let succesfulcount = vectorsAdded;
+            return json({status: "Uploaded: "+ succesfulcount + " vectors."});
+        }
     }
-
 }

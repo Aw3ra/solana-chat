@@ -1,5 +1,5 @@
 <script>
-    import { addFullGithubRepo, addReadmeGithubRepo } from "$lib/utils/serverCalls";
+    import { addFullGithubRepo, addReadmeGithubRepo, deleteNamespace } from "$lib/utils/serverCalls";
 
     let url = "";
     let inputVal = "";
@@ -10,7 +10,9 @@
         url = inputVal;
         inputVal = 'Uploading full repo...';
         // Hit the githubROute apit on the server
-        await addFullGithubRepo(url, namespace);
+        let result = await addFullGithubRepo(url, namespace);
+        inputVal = result;
+
         
         // Wait for 3 seconds
         await new Promise(r => setTimeout(r, 3000));
@@ -22,7 +24,7 @@
         url = inputVal;
         inputVal = 'Uploading readme...';
         // Hit the githubROute apit on the server
-        const response = await addReadmeGithubRepo(url, namespace);
+        let response = await addReadmeGithubRepo(url, namespace);
         inputVal = response;
         await new Promise(r => setTimeout(r, 3000));
         inputVal = '';

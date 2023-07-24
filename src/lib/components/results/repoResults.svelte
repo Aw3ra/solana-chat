@@ -11,9 +11,8 @@
 {#each results as result, index (result)}
 <!-- A div to hold 2 link buttons side by side in a grid -->
 
-  <div class ="grid grid-cols-4 gap-4">
     <a
-      class="results text-black no-underline col-span-4"
+      class="results text-black no-underline"
       href={result.metadata.url}
       out:fade={{ duration: 1000, easing: linear }}
       in:fade={{ delay: index * 400, duration: 1000, easing: linear }}
@@ -24,5 +23,4 @@
         <strong>{capitalizeFirstLetter(result.metadata.filename)}</strong>
       </div>
     </a>
-  </div> 
 {/each}

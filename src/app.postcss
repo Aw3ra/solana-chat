@@ -10,6 +10,7 @@
     gap: 10px;
     width: 100%;
     padding-top: 20px;
+    margin: 10px
 }
 
 @media screen and (max-width: 768px) {
@@ -30,11 +31,12 @@
     padding: 10px;
     gap : 10px;
     border: 1px solid #753f98;
-    height: 50px;
+    min-height: 50px;
     margin-top: 10px;
     color: black;
     transition: background-color 0.3s, transform 0.3s;
     cursor: pointer;
+    white-space: nowrap;
 }
 .results:hover {
     background-color: rgba(255, 255, 255, 0.9);
@@ -42,9 +44,13 @@
 }
 .resultsBox{
     margin: 20px;
-    width: 600px;
-    height: 520px;
+    max-height:880px;
+    width: 100%;
     position: relative; /* Add this */
+}
+.ProjectName{
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .githubadd {
@@ -94,7 +100,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    color: #9945FF;
+    color: black;
     /* Make it bold */
     font-weight: bold;
 }
@@ -103,15 +109,16 @@
     padding: 10px;
     border-radius: 10px;
     /* Set the colour to be a faded white */
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(20, 241, 149, 0.5);
 
     /* Set the max width to be the width of the chatbox minus the width of the author */
     max-width: calc(100% - 120px);
     font-size: 14px; 
     text-align: left;
+    border: 1px solid black;
 }
 .message .content.ai {
-    color: #9945FF;
+    color: black;
     font-weight: bold;
     font-size: 14px;
     text-align: left;
@@ -125,10 +132,7 @@
     display: flex;
     align-items: center;
     font-weight: bold;
-    border: 1px solid #753f98;
     border-radius: 15px;
-    padding: 5px;
-    background-color: white;
     justify-content: flex-start;
 }
 
@@ -144,9 +148,8 @@
 }
 
 .chatbox {
-    height: 600px; /* Set the desired height for the chatbox container */
-    max-width:480px;
-    min-width:480px;
+    height: 880px; /* Set the desired height for the chatbox container */
+    width: 200%;
     overflow-y: auto; /* Enable vertical scrolling */
     display: flex;
     flex-direction: column;
@@ -154,8 +157,7 @@
     color: black;
     justify-content: flex-end;
     text-align: center;
-    border-size: 2px;
-    border-color: black;
+    border: 2px solid #753f98;
     border-radius: 10px;
     background: linear-gradient(rgb(153 69 255), rgb(20 241 149) 150%);
 }
@@ -187,7 +189,7 @@ code {
     margin-bottom: 10px;
 }
 body {
-    font-family: "Roboto", sans-serif;
+    font-family: "Helvetica", sans-serif;
     background-size: cover;
     background-position: center;
     background: linear-gradient(rgb(20 241 149), rgb(153 69 255) 90%);

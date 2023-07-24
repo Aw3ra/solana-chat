@@ -41,28 +41,40 @@ const languageToExtension = {
     });
 }
 
-
-
 /**
  * @param {Octokit}     octokit
  * @param {string}      owner
  * @param {string}      repo
  * @param {any}         path
  */
-async function processDirectory(octokit, owner, repo, path) {
+async function processDirectory(octokit, owner, repo, path, readme=false) {
     const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
         owner,
         repo,
         ...(path && { path })
     });
     const fileContents = [];
-    console.log(data);
     for(const item of data) {
         if (item.type === 'dir') {
             const subDirContent = await processDirectory(octokit, owner, repo, item.path);
             fileContents.push(...subDirContent);
         } else {
             const extension = item.name.split('.').pop();
+            // If we only want the readme, check if readme is true and that the name of the file contains readme
+            if (readme && item.name.toLowerCase().includes('readme')) {
+                const content = await fetch(item.download_url);
+                const contentText = await content.text();
+                fileContents.push({
+                    name: item.name,
+                    extension: `.${extension}`,
+                    language: Object.keys(languageToExtension).find(key => languageToExtension[key] === `.${extension}`),
+                    path: item.path,
+                    content: contentText,
+                    url: item.html_url,
+                });
+                // Break out of the loop
+                break
+            }
             if (Object.values(languageToExtension).includes(`.${extension}`)) {
                 const content = await fetch(item.download_url);
                 const contentText = await content.text();
@@ -77,7 +89,6 @@ async function processDirectory(octokit, owner, repo, path) {
             }
         }
     }
-    console.log(fileContents);
     return fileContents;
 }
 
@@ -120,14 +131,15 @@ async function createVectors(owner, repo, path, fileContents){
 }
 
 /**
- * @param {{ split: (arg0: string) => [any, any, any]; }} url
+ * @param {{split: (arg0: string) => [any, any, any];}} url
+ * @param {boolean | undefined} [readme]
  */
-export async function getCodeFromGithub(url) {
+export async function getCodeFromGithub(url, readme) {
     // If github.com/ is in the url, split it
     const splitUrl = url.split('github.com/')[1];
     const [owner, repo, path] = splitUrl.split('/');
     const octokit = new Octokit({ auth: GITHUB_TOKEN });
-    const fileContents = await processDirectory(octokit, owner, repo, path);
+    const fileContents = await processDirectory(octokit, owner, repo, path, readme);
     // Turn the fileContents into a vector array for pinecone
     return await createVectors(owner, repo, path, fileContents);
     

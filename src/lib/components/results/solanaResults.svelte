@@ -25,7 +25,7 @@
     >
     <!--        -->
       <div class="ProjectName">
-        <strong>{capitalizeFirstLetter(result.metadata.Projectname)}</strong>
+        <strong>{capitalizeFirstLetter(result.metadata.author)}</strong> / {result.metadata.Projectname}
       </div>
     </a>
     {#if resultsCount[index]}
