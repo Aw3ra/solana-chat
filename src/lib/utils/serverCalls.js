@@ -72,6 +72,7 @@ export async function getResults(messages, namespace)
 export async function getMessage (messages, namespace)
 {
     const results = await getResults(messages, namespace);
+    console.log(results)
     try{
       return await fetch('/api/openAIRoute',
         {
