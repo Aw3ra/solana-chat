@@ -31,13 +31,13 @@
     </a>
     {#if resultsCount[index]}
     <a
-      class="icon no-underline col-span-1/2"
+      class="no-underline col-span-1/2"
       href={"individualChat?project="+result.metadata.Projectname+"&author="+result.metadata.author}
       out:fade={{ duration: 1000, easing: linear }}
       in:fade={{ delay: index * 400, duration: 1000, easing: linear }}
       target="_blank"
       >
-      <img alt="Solana AI" src={ChatIcon} />
+      <img class="icon" alt="Solana AI" src={ChatIcon} />
     </a>
     {/if}
   </div> 
