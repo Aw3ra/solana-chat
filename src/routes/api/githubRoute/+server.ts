@@ -5,7 +5,7 @@ import { addVectors } from "$lib/utils/pineconeFunctions.js";
 
 export async function POST({request}) {
     let {url, upload} = await request.json();
-    if (!url) {
+    if (!url || !url.includes("github.com")) {
         return json({status: "No url was provided."});
     }
     if (upload === "full")
