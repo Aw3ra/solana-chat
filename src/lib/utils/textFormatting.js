@@ -11,6 +11,11 @@ export function formatText(text) {
     const urlPattern = /(http[s]?:\/\/[^\s]*)/g;
     formattedText = formattedText.replace(urlPattern, '<a href="$1" target="_blank">[Link]</a>');
 
+    // After replacing URLs, replace sections between triple back ticks with code blocks
+    const codePattern = /```([^`]+)```/g;
+    formattedText = formattedText.replace(codePattern, '<pre><code>$1</code></pre>');
+    
+
     return formattedText;
 }
 /**

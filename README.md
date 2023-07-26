@@ -9,3 +9,6 @@
   - PINECONE_API_KEY     (Your pinecone api key, support for other vector stores later)
   - PINECONE_ENVIRONMENT (The enivornment for pinecone)
   - PINECONE_INDEX       (The index or database on pinecone you are connecting to)
+
+
+Adding a change
