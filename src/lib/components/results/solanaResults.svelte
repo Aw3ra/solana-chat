@@ -19,6 +19,7 @@
   <div class ="grid grid-cols-4 gap-4">
     <a
       class="results text-black no-underline col-span-3"
+      class:first-result={index === 0}
       href={result.metadata.url}
       out:fade={{ duration: 1000, easing: linear }}
       in:fade={{ delay: index * 400, duration: 1000, easing: linear }}

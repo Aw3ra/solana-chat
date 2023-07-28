@@ -11,6 +11,7 @@
     import RepoResults from './results/repoResults.svelte';
     import {getResultsCount, getMessage} from '$lib/utils/serverCalls';
     import {formatText, capitalizeFirstLetter} from '$lib/utils/textFormatting';
+  
 
     export let namespace;
     let heading = 'documents loaded from {DEFAULT} repo';
@@ -33,13 +34,44 @@
     let chatResultsCount = []
     let repoCount = 0;
     let chatboxRef;
+    let fullText = '';
     export let messages = [new AIChatMessage(firstMesage)];
+    let message = '';
+    let i =0;
     
+    // Function to get the most recent message to type out character by character
+    let isTypingDone = false;
+
+    const startTyping = (text) => {
+        fullText = text;
+        message = '';
+        i = 0;
+        isTypingDone = false;
+        const intervalId = setInterval(() => {
+            if(i < fullText.length) {
+                message += fullText[i];
+                i++;
+            } else {
+                clearInterval(intervalId);
+                isTypingDone = true;
+            }
+        }, 10);
+    }
+
+    $: if (messages.length > 0) {
+        startTyping(messages[messages.length - 1].text);
+    }
+
+
+
     afterUpdate(() => {
         scrollChatboxToBottom();
     });
     // On mount load the results count
     onMount(async() => {
+      if (messages.length > 0) {
+            startTyping(messages[messages.length - 1].text);
+        }
         repoCount = await getResultsCount(namespace);
     });
     function scrollChatboxToBottom() {
@@ -82,22 +114,21 @@
   <div class="search">
     <div class="chatbox" >
       <div class="messageContainer"bind:this={chatboxRef}>
-        {#each messages as message}
-          <div class="message" 
-          class:user={message instanceof AIChatMessage}>
-            {#if message instanceof AIChatMessage}
-              <span class="author">
+        {#each messages as msg, index (index)}
+    <div class="message" class:user={msg instanceof AIChatMessage}>
+        {#if msg instanceof AIChatMessage && msg.text !==""}
+            <span class="author">
                 <img alt="Solana AI" src={Robot} />
-              </span>
-              <span class="content ai">{@html formatText(message.text)}</span>
-            {:else}
-              <span class="content">{message.text}</span>
-              <span class="author">
+            </span>
+            <span class="content ai">{msg === messages[messages.length - 1] ? (isTypingDone ? formatText(msg.text) : message) : formatText(msg.text)}</span>
+        {:else}
+            <span class="content">{msg.text}</span>
+            <span class="author">
                 <img alt="Solana AI" src={User} />
-              </span>
-            {/if}
-          </div>
-        {/each}
+            </span>
+        {/if}
+    </div>
+{/each}
       </div>
       <!-- Your input box markup here -->
       <div class="inputWrapper">
@@ -117,7 +148,7 @@
       </div>
     </div>
     <div class="resultsBox">
-      <div class= "Heading text-black text-3xl"><strong></strong>Similar results</div>
+      <div class= "Heading text-black text-3xl"><strong></strong>Results</div>
       {#if namespace== "solana"}
         <SolanaResults results = {displayedResults} resultsCount = {chatResultsCount}/>
       {:else}

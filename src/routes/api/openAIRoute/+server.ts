@@ -12,7 +12,6 @@ let systemPromptProfile = `The following is a conversation with an AI assistant.
 
 export async function POST({request}) {
   const { messages, query, namespace } = await request.json();
-  console.log(query);
   let conversation = [];
   // For each message in the array, assign them to the right ChatMessage class
   const model = new ChatOpenAI({
@@ -23,7 +22,7 @@ export async function POST({request}) {
 //   Get the response from the vector store
 let systemPrompt = new SystemChatMessage("");
   if (namespace==="solana"){
-      systemPromptProfile = `You are an AI that helps people understand solana GITHUB repos, if you provide any examples put them within a code identifier like this #@[EXAMPLE HERE]@#. You have found the following description for a script within a repo, use only the following information to answer the users query with a short sentence:\n\n`
+      systemPromptProfile = `You are an AI that helps people understand solana GITHUB repos, if you provide any examples put them within a code identifier like this #@[EXAMPLE HERE]@#. All related repos can be found under "similar results" to the right, ensure the user knows this. You have found the following description for a script within a repo, use only the following information to answer the users query with a short sentence:\n\n`
       systemPrompt = new SystemChatMessage(
         `${systemPromptProfile}\n
         Project Name: ${capitalizeFirstLetter(query.metadata.Projectname)}\n
@@ -43,8 +42,6 @@ let systemPrompt = new SystemChatMessage("");
   }
 
   // Create a system message with the response with a brief description of the bot, along with the results
-
-  console.log(systemPrompt);
   conversation.push(systemPrompt);
   for (const message of messages) {
     if (message.type === "human") {
@@ -56,7 +53,7 @@ let systemPrompt = new SystemChatMessage("");
   const message = await model.call(
     conversation
   );
-  const finalMessage = message.text + "\n\n"+ query.metadata.url;
+  const finalMessage = message.text
   // Add the metadata URl to the end of the message
   return json(finalMessage);
 }
