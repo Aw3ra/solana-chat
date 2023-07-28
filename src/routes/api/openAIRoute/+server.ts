@@ -7,7 +7,7 @@ import { json } from "@sveltejs/kit";
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
-let systemPromptProfile = `The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. You have found the following code as part of a github repository, using this information breifly answer the users query:\n\n`
+let systemPromptProfile = `The following is a conversation with an AI assistant. The assistant is helpful and concise. You have found the following code as part of a github repository, using this information answer the users query in a very short sentence:\n\n`
 
 
 export async function POST({request}) {
@@ -23,7 +23,7 @@ export async function POST({request}) {
 //   Get the response from the vector store
 let systemPrompt = new SystemChatMessage("");
   if (namespace==="solana"){
-      systemPromptProfile = `You are an AI that helps people understand solana GITHUB repos, if you provide any examples put them within a code identifier like this #@[EXAMPLE HERE]@#. You have found the following description for a script within a repo, use only the following information to answer the users query with a single sentence:\n\n`
+      systemPromptProfile = `You are an AI that helps people understand solana GITHUB repos, if you provide any examples put them within a code identifier like this #@[EXAMPLE HERE]@#. You have found the following description for a script within a repo, use only the following information to answer the users query with a short sentence:\n\n`
       systemPrompt = new SystemChatMessage(
         `${systemPromptProfile}\n
         Project Name: ${capitalizeFirstLetter(query.metadata.Projectname)}\n

@@ -61,20 +61,24 @@ async function processDirectory(octokit, owner, repo, path, readme=false) {
         } else {
             const extension = item.name.split('.').pop();
             // If we only want the readme, check if readme is true and that the name of the file contains readme
-            if (readme && item.name.toLowerCase().includes('readme')) {
-                const content = await fetch(item.download_url);
-                const contentText = await content.text();
-                fileContents.push({
-                    name: item.name,
-                    extension: `.${extension}`,
-                    language: Object.keys(languageToExtension).find(key => languageToExtension[key] === `.${extension}`),
-                    path: item.path,
-                    content: contentText,
-                    url: item.html_url,
-                });
-                // Break out of the loop
-                break
+            if (item.name.toLowerCase().includes('readme'))
+            {
+                if (readme) {
+                    const content = await fetch(item.download_url);
+                    const contentText = await content.text();
+                    fileContents.push({
+                        name: item.name,
+                        extension: `.${extension}`,
+                        language: Object.keys(languageToExtension).find(key => languageToExtension[key] === `.${extension}`),
+                        path: item.path,
+                        content: contentText,
+                        url: item.html_url,
+                    });
+                    // Break out of the loop
+                    break
+                }
             }
+
             if (Object.values(languageToExtension).includes(`.${extension}`)) {
                 const content = await fetch(item.download_url);
                 const contentText = await content.text();
