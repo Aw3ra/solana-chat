@@ -24,3 +24,33 @@ export function formatText(text) {
 export function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
+function escapeHTML(html) {
+    const escapeChars = {
+        '"': '&quot;',
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+    };
+    return html.replace(/[&<>"']/g, m => escapeChars[m]);
+}
+export function splitByCodeBlocks(text) {
+    const codePattern = /```([^`]+)```/g;
+    const pieces = [];
+    let match;
+    let lastIdx = 0;
+    while ((match = codePattern.exec(text)) !== null) {
+        if (lastIdx !== match.index) {
+            // There's text before this match, add it
+            pieces.push({type: 'text', content: text.slice(lastIdx, match.index)});
+        }
+        // Add the code with the appropriate HTML tags and escape the HTML inside
+        pieces.push({type: 'code', content: '<pre><code>' + escapeHTML(match[1]) + '</code></pre>'});
+        lastIdx = match.index + match[0].length;
+    }
+    if (lastIdx !== text.length) {
+        // There's text after the last match, add it
+        pieces.push({type: 'text', content: text.slice(lastIdx)});
+    }
+    return pieces;
+}

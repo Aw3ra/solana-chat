@@ -7,7 +7,7 @@ import { json } from "@sveltejs/kit";
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
-let systemPromptProfile = `The following is a conversation with an AI assistant. The assistant is helpful and concise. You have found the following code as part of a github repository, using this information answer the users query in a very short sentence:\n\n`
+let systemPromptProfile = `The following is a conversation with an AI assistant. The assistant is helpful and concise. Solai has searched it's memory and found the following code as part of a github repository, using this information answer the users query in a very short sentence. Other relavent answers are to the users right, make sure they know this:\n\n`
 
 
 export async function POST({request}) {
@@ -21,8 +21,9 @@ export async function POST({request}) {
 });
 //   Get the response from the vector store
 let systemPrompt = new SystemChatMessage("");
+if (query!==undefined){
   if (namespace==="solana"){
-      systemPromptProfile = `You are an AI that helps people understand solana GITHUB repos, if you provide any examples put them within a code identifier like this #@[EXAMPLE HERE]@#. All related repos can be found under "similar results" to the right, ensure the user knows this. You have found the following description for a script within a repo, use only the following information to answer the users query with a short sentence:\n\n`
+      systemPromptProfile = `You are an SolAI, an AI helps people understand solana GITHUB repos. Other relevant information can be found to the right of the user, when responding remind the user that the information can be found in the results section to the right. Solai has searched it's memory and found the following information regarding a solana based Github repository, use only the following information to answer the users query with a short sentence and tell them more infor can be found to the right in the results section:\n\n`
       systemPrompt = new SystemChatMessage(
         `${systemPromptProfile}\n
         Project Name: ${capitalizeFirstLetter(query.metadata.Projectname)}\n
@@ -39,7 +40,15 @@ let systemPrompt = new SystemChatMessage("");
       File path: ${query.metadata.filepath}\n
       `,
     );
+  }}
+  else{
+    systemPromptProfile = `You are an AI that helps people understand GITHUB repos, if you provide any examples put them within a code identifier like this #@[EXAMPLE HERE]@#. You could not find any related GITHUB repositories, apologies for the user and ask them to try a different question.\n\n`
+    systemPrompt = new SystemChatMessage(
+      `${systemPromptProfile}\n'`,
+    );
   }
+
+
 
   // Create a system message with the response with a brief description of the bot, along with the results
   conversation.push(systemPrompt);

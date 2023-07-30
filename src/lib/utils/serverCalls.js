@@ -72,20 +72,21 @@ export async function getResults(messages, namespace)
 export async function getMessage (messages, namespace)
 {
     const results = await getResults(messages, namespace);
+    console.log(results)
     try{
       return await fetch('/api/openAIRoute',
         {
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 "messages": messages, 
-                "query": results.matches[0],
+                "query": results[0],
                 "namespace": namespace
             })
         })
         // API returns a json object with the response
         .then(response => response.json())
         .then(data => {
-            return [data, results.matches]
+            return [data, results]
         })
     }
     catch(err){

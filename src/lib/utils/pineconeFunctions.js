@@ -23,15 +23,18 @@ export async function queryVectors (query, namespace, filter = {}){
     try{
         const queryRequest = {
             vector: await embeddings.embedQuery(query),
-            topK: 6,
+            topK: 10,
             includeMetadata: true,
             includeValues: true,
             namespace: namespace,
             filter: filter,
         };
         const queryResponse = await index.query({queryRequest});
-        console.log(queryResponse.matches);
-        return queryResponse;
+        const matches = queryResponse.matches;
+        // Filter out any matches that have a score of less than 0.8
+        const filteredMatches = matches.filter(match => match.score > 0.70);
+    
+        return filteredMatches;
     }
     catch(err){
         console.log("Error querying vectors: " + err)
@@ -106,7 +109,7 @@ export async function addVectors (vectors, namespace){
             throw new Error("Incorrect vector structure");
         }
     });
-    console.log(vectors.length)
+    console.log(vectors);
     try{
         const upsertRequest = {
             vectors: vectors,

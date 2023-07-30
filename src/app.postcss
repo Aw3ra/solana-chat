@@ -37,6 +37,7 @@
     transition: background-color 0.3s, transform 0.3s;
     cursor: pointer;
     white-space: nowrap;
+    overflow-y: auto; /* Add this */
 }
 .icon{
     display: flex;
@@ -57,7 +58,33 @@
 }
 .resultsBox{
     margin: 20px;
-    max-height:880px;
+    max-height:60%;
+    width: 100%;
+    position: relative; /* Add this */
+    overflow: auto; /* Add this */
+}
+.resultsBox::-webkit-scrollbar {
+    width: 5px;  /* Adjust width as needed */
+    color: black;
+    border-radius: 5px;
+}
+.resultsBox::-webkit-scrollbar-track {
+    background: rgba(128, 128, 128, 0.1);  /* Color of the track (or "trough") */
+    border-radius: 5px;
+}
+
+.resultsBox::-webkit-scrollbar-thumb {
+    background: #888;  /* Color of the "thumb" (or "handle") */
+    border-radius: 10px;
+}
+
+.resultsBox::-webkit-scrollbar-thumb:hover {
+    background: #555;  /* Color of the "thumb" when hovered */
+}
+
+.leftPanel{
+    margin: 20px;
+    height:75vh;
     width: 100%;
     position: relative; /* Add this */
 }
@@ -180,18 +207,37 @@
 pre {
   padding: 10px;
   margin: 0.5em 0;
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(128, 128, 128, 0.2);
   border-radius: 5px;
   border: 2px solid black;
   overflow: auto;
   font-weight: normal;
+  font-size: 16px;
+  overflow-x: auto;
+}
+pre::-webkit-scrollbar {
+    height: 10px;  /* Adjust width as needed */
+    color: black;
+    border-radius: 5px;
+}
+pre::-webkit-scrollbar-track {
+    background: rgba(128, 128, 128, 0.1);  /* Color of the track (or "trough") */
+    border-radius: 5px;
+}
+
+pre::-webkit-scrollbar-thumb {
+    background: #888;  /* Color of the "thumb" (or "handle") */
+    border-radius: 10px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+    background: #555;  /* Color of the "thumb" when hovered */
 }
 
 code {
   color: black;
   border-radius: 4px;
   padding: 2px 4px;
-  font-size: 90%;
 }
 
 
