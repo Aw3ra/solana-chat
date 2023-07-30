@@ -4,7 +4,7 @@
 
 </script>
 
-<div class="my-auto mx-auto max-w-7xl py-5">
+<div class="mx-auto max-w-7xl py-5">
     <!-- A heading for the chatbox -->
     <Chatbox namespace= {namespace}/>
 </div>

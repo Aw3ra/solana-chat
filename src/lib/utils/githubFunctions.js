@@ -2,6 +2,7 @@ import { Octokit } from "@octokit/core";
 import { GITHUB_TOKEN } from "$env/static/private";
 import { SupportedTextSplitterLanguages, RecursiveCharacterTextSplitter} from "langchain/text_splitter";
 import {createEmbedding, createDescription} from "$lib/utils/aiFunctions";
+import { ParseStatus } from "zod";
 // Extension mapping based on your supportedLanguages array
 const languageToExtension = {
     'cpp': '.cpp',
@@ -105,9 +106,15 @@ async function processDirectory(octokit, owner, repo, path, readme=false) {
 async function createVectors(owner, repo, path, fileContents){
     const vectorArray = [];
     for (const file of fileContents) {
+        let chunks = [];
         try{
             const splitter = createSplitter(file.language);
-            const chunks = await splitter.createDocuments([file.content]);
+            if (!file.path.contains('readme')) {
+                chunks = await splitter.createDocuments([file.content]);
+            }
+            else {
+                chunks = [file.content]
+            }
             for (let i = 0; i < chunks.length; i++) {
                 vectorArray.push({
                     id: `${file.path}-${i}`, // i is the chunk number

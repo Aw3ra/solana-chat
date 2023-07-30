@@ -29,7 +29,7 @@ export async function POST({request}) {
                     await getCodeFromGithub(url, readme), 
                     "solana"
                     );
-            let succesfulcount = vectorsAdded;
+            let succesfulcount = vectorsAdded.upsertedCount;
             return json({status: "Uploaded: "+ succesfulcount + " vectors."});
         }
     }
