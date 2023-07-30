@@ -31,7 +31,8 @@
     {/each}
   
     <!-- Add submission box for github URLs to be submitted, needs to always be at the bottom -->
-    <div class = "githubadd">
-      <Githubadd />
-    </div>
+
+  </div> 
+  <div class = "githubadd">
+    <Githubadd />
   </div>
