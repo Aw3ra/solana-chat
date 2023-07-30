@@ -1,7 +1,8 @@
-# This is the repo for [Solana Repo Chat](https://solanoid.xyz)
+# This is the repo for [Solanoid](https://solanoid.xyz)
 ### By awera
 
 This chat app utilises pinecone, openAI and sveltekit to allow users to talk to solana github repos.
+It is accessible at solanoid.xyz and was built for the Encode Hackathon.
 
 ## Installation
 - git clone
