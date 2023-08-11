@@ -2,7 +2,8 @@ import { Octokit } from "@octokit/core";
 import { GITHUB_TOKEN } from "$env/static/private";
 import { SupportedTextSplitterLanguages, RecursiveCharacterTextSplitter} from "langchain/text_splitter";
 import {createEmbedding, createDescription} from "$lib/utils/aiFunctions";
-import { ParseStatus } from "zod";
+import openaiTokenCounter from 'openai-gpt-token-counter';
+
 // Extension mapping based on your supportedLanguages array
 const languageToExtension = {
     'cpp': '.cpp',
@@ -55,15 +56,20 @@ async function processDirectory(octokit, owner, repo, path, readme=false) {
         ...(path && { path })
     });
     const fileContents = [];
+    let token_count = 0;
     for(const item of data) {
         if (item.type === 'dir') {
-            const subDirContent = await processDirectory(octokit, owner, repo, item.path);
+            // If the item is called packages, skip it
+            if (item.name.toLowerCase() === 'packages') {
+                continue;
+            }
+            const { contents: subDirContent, tokens: subDirTokens } = await processDirectory(octokit, owner, repo, item.path);
             fileContents.push(...subDirContent);
+            token_count += subDirTokens; // Accumulate the token count
         } else {
             const extension = item.name.split('.').pop();
             // If we only want the readme, check if readme is true and that the name of the file contains readme
-            if (item.name.toLowerCase().includes('readme'))
-            {
+            if (item.name.toLowerCase().includes('readme')) {
                 if (readme) {
                     const content = await fetch(item.download_url);
                     const contentText = await content.text();
@@ -76,7 +82,7 @@ async function processDirectory(octokit, owner, repo, path, readme=false) {
                         url: item.html_url,
                     });
                     // Break out of the loop
-                    break
+                    break;
                 }
             }
 
@@ -91,11 +97,16 @@ async function processDirectory(octokit, owner, repo, path, readme=false) {
                     content: contentText,
                     url: item.html_url,
                 });
+                // Count how many tokens in item.content
+                const message = { role: "user", content: contentText };
+                const tokenResponse = openaiTokenCounter.chat([message], "gpt-3.5-turbo")+150;
+                token_count += tokenResponse; // Assuming the response has a 'tokens' property
             }
         }
     }
-    return fileContents;
+    return { contents: fileContents, tokens: token_count };
 }
+
 
 /**
  * @param {any} owner
@@ -138,6 +149,7 @@ async function createVectors(owner, repo, path, fileContents){
             continue;
         }
     }    
+    console.log("Vectors created")
     return vectorArray;
 }
 
@@ -151,7 +163,8 @@ export async function getCodeFromGithub(url, readme) {
     const [owner, repo, path] = splitUrl.split('/');
     const octokit = new Octokit({ auth: GITHUB_TOKEN });
     const fileContents = await processDirectory(octokit, owner, repo, path, readme);
+    const cost = fileContents.tokens * 0.0000015;
+    console.log(`Cost: ${cost}`);
     // Turn the fileContents into a vector array for pinecone
-    return await createVectors(owner, repo, path, fileContents);
-    
+    return await createVectors(owner, repo, path, fileContents.contents);
 }

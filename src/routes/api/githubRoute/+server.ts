@@ -10,7 +10,7 @@ export async function POST({request}) {
     }
     if (upload === "full")
     {
-        return json({status: "Not yet implemented."});
+        // return json({status: "Not yet implemented."});
         const vectorsAdded = 
             await addVectors(
                 await getCodeFromGithub(url), 
