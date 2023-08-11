@@ -109,7 +109,7 @@ async function createVectors(owner, repo, path, fileContents){
         let chunks = [];
         try{
             const splitter = createSplitter(file.language);
-            if (!file.path.contains('readme')) {
+            if (!file.path.includes('readme')) {
                 chunks = await splitter.createDocuments([file.content]);
             }
             else {
